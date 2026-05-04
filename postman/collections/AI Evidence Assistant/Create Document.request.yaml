@@ -12,3 +12,34 @@ body:
       "title": "Sample Document",
       "text": "This is a sample document text that is long enough to meet the minimum length requirement."
     }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response has an 'id' field that is a string", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("id");
+          pm.expect(jsonData.id).to.be.a("string");
+      });
+
+      pm.test("Response has a 'title' field equal to 'Sample Document'", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("title");
+          pm.expect(jsonData.title).to.eql("Sample Document");
+      });
+
+      pm.test("Response has 'char_count' that is a number greater than 0", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("char_count");
+          pm.expect(jsonData.char_count).to.be.a("number").and.to.be.above(0);
+      });
+
+      pm.test("Response has 'word_count' that is a number greater than 0", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("word_count");
+          pm.expect(jsonData.word_count).to.be.a("number").and.to.be.above(0);
+      });
