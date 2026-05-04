@@ -1,20 +1,18 @@
 $kind: http-request
 name: Create Document
 method: POST
-url: 'http://localhost:8000/documents'
+url: http://localhost:8000/documents
 headers:
-  - key: Content-Type
-    value: application/json
+  Content-Type: application/json
 body:
   type: json
   content: |-
     {
-      "title": "Sample Document",
-      "text": "This is a sample document text that is long enough to meet the minimum length requirement."
+        "title": "Sample Document",
+        "text": "This is a short test document about artificial intelligence, retrieval systems, and evidence-based answers."
     }
 scripts:
   - type: afterResponse
-    language: text/javascript
     code: |-
       pm.test("Status code is 200", function () {
           pm.response.to.have.status(200);
@@ -43,3 +41,4 @@ scripts:
           pm.expect(jsonData).to.have.property("word_count");
           pm.expect(jsonData.word_count).to.be.a("number").and.to.be.above(0);
       });
+    language: text/javascript
