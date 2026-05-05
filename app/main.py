@@ -30,11 +30,30 @@ def create_document(document: DocumentCreate):
             VALUES (?, ?, ?, ?, ?)
             """,
             (document_id, document.title, document.text, char_count, word_count))
-    return DocumentResponse(
-        id = str (uuid4()), 
-        title= document.title,
-        char_count= len(document.text),
-        word_count= len(document.text.split()),
-    )
 
-#sdasd
+        return DocumentResponse(
+            id=document_id,
+            title=document.title,
+            char_count=char_count,
+            word_count=word_count,
+        )
+
+@app.get("/documents", response_model= list[DocumentResponse])
+def list_documents():
+        with get_connection() as conn:
+            rows= conn.execute(
+                """
+                Select id, title, char_count, word_count
+                FROM documents
+                ORDER BY rowid DESC
+                """
+                          ).fetchall()
+        return [
+            DocumentResponse(
+                id= row[0],
+                title= row[1],
+                char_count=row[2],
+                word_count= row[3],
+            )
+            for row in rows
+        ]
