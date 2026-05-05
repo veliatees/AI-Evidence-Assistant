@@ -9,3 +9,10 @@ class DocumentResponse(BaseModel):
       title: str
       char_count: int
       word_count: int
+
+class DocumentDetailResponse(BaseModel):
+        id: str
+        title: str
+        text: str
+        char_count: int
+        word_count: int

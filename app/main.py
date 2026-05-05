@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from uuid import uuid4
-from app.schemas import DocumentCreate, DocumentResponse
 from app.database import get_connection, init_db
+from app.schemas import DocumentCreate, DocumentDetailResponse, DocumentResponse
+
 
 app= FastAPI(
     title= "AI Evidence Assistant",
@@ -38,22 +39,27 @@ def create_document(document: DocumentCreate):
             word_count=word_count,
         )
 
-@app.get("/documents", response_model= list[DocumentResponse])
+@app.get("/documents", response_model= list[DocumentDetailResponse])
 def list_documents():
         with get_connection() as conn:
-            rows= conn.execute(
+            row= conn.execute(
                 """
-                Select id, title, char_count, word_count
+                Select id, title, text, char_count, word_count
                 FROM documents
                 ORDER BY rowid DESC
                 """
                           ).fetchall()
+            
+            if row is None:
+                 raise HTTPException(status_code= 404, detail= "Document not found")
+            
         return [
-            DocumentResponse(
-                id= row[0],
-                title= row[1],
-                char_count=row[2],
-                word_count= row[3],
+            DocumentDetailResponse(
+                id=single_row[0],
+                title=single_row[1],
+                text=single_row[2],
+                char_count=single_row[3],
+                word_count=single_row[4],
             )
-            for row in rows
+            for single_row in row
         ]
