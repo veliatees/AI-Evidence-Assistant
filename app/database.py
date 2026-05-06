@@ -13,9 +13,12 @@ def init_db():
             """ 
                 CREATE TABLE IF NOT EXISTS documents (
                 id TEXT PRIMARY KEY,
-                title TEXT NOT NULL,
+                title TEXT NOT NULL UNIQUE,
                 text TEXT NOT NULL,
                 char_count INTEGER NOT NULL,
                 word_count INTEGER NOT NULL
+                FOREIGN KEY (document_id) REFERENCES documents (id)
+
             )
             """)
+        
