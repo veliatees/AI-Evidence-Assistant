@@ -2,13 +2,12 @@ from fastapi import FastAPI, HTTPException
 from uuid import uuid4
 from app.database import get_connection, init_db
 from app.schemas import DocumentCreate, DocumentDetailResponse, DocumentResponse
-
+from app.chunking import chunk_text
 
 app= FastAPI(
     title= "AI Evidence Assistant",
     version= "0.1.0",
 )
-
 init_db()
 
 @app.get("/health")
@@ -24,20 +23,39 @@ def create_document(document: DocumentCreate):
     document_id = str(uuid4())
     char_count = len(document.text)
     word_count = len(document.text.split())
+    chunks = chunk_text(document.text)
+
     with get_connection() as conn:
         conn.execute(
             """
             INSERT INTO documents (id, title, text, char_count, word_count)
             VALUES (?, ?, ?, ?, ?)
             """,
-            (document_id, document.title, document.text, char_count, word_count))
-
-        return DocumentResponse(
-            id=document_id,
-            title=document.title,
-            char_count=char_count,
-            word_count=word_count,
+            (document_id, document.title, document.text, char_count, word_count),
         )
+
+        for index, chunk in enumerate(chunks):
+            conn.execute(
+                """
+                INSERT INTO chunks (id, document_id, chunk_index, text, char_count, word_count)
+                VALUES (?, ?, ?, ?, ?, ?) 
+                """,
+                (
+                    str(uuid4()),
+                    document_id,
+                    index,
+                    chunk,
+                    len(chunk),
+                    len(chunk.split()),
+                ),
+            )
+
+    return DocumentResponse(
+        id=document_id,
+        title=document.title,
+        char_count=char_count,
+        word_count=word_count,
+    )
 
 @app.get("/documents", response_model= list[DocumentDetailResponse])
 def list_documents():

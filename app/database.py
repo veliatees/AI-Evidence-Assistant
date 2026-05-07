@@ -10,15 +10,26 @@ def get_connection():
 def init_db():
     with get_connection() as conn:
         conn.execute(
-            """ 
+            """
                 CREATE TABLE IF NOT EXISTS documents (
                 id TEXT PRIMARY KEY,
                 title TEXT NOT NULL UNIQUE,
                 text TEXT NOT NULL,
                 char_count INTEGER NOT NULL,
                 word_count INTEGER NOT NULL
-                FOREIGN KEY (document_id) REFERENCES documents (id)
-
             )
+            """)
+
+        conn.execute(
+            """
+                CREATE TABLE IF NOT EXISTS chunks (
+                id TEXT PRIMARY KEY,
+                document_id TEXT NOT NULL,
+                chunk_index INTEGER NOT NULL,
+                text TEXT NOT NULL,
+                char_count INTEGER NOT NULL,
+                word_count INTEGER NOT NULL,
+                FOREIGN KEY (document_id) REFERENCES documents (id)
+                )
             """)
         
