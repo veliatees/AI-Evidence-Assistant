@@ -82,7 +82,7 @@ def list_documents():
             for single_row in row
         ]
 @app.get("/documents/{document_id}/chunks", response_model= list[ChunkDetailResponse])
-def list_documents(document_id: str):
+def list_documents_chunks(document_id: str):
         with get_connection() as conn:
             rows= conn.execute(
                 """
@@ -98,7 +98,7 @@ def list_documents(document_id: str):
                 (
                 id=single_row[0],
                 document_id =single_row[1],
-                chunk_index= row[2],
+                chunk_index= single_row[2],
                 text=single_row[3],
                 char_count=single_row[4],
                 word_count=single_row[5],
