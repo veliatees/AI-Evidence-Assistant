@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from uuid import uuid4
 from app.database import get_connection, init_db
-from app.schemas import DocumentCreate, DocumentDetailResponse, DocumentResponse
+from app.schemas import DocumentCreate, DocumentDetailResponse, DocumentResponse, ChunkDetailResponse
 from app.chunking import chunk_text
 
 app= FastAPI(
@@ -80,4 +80,28 @@ def list_documents():
                 word_count=single_row[4],
             )
             for single_row in row
+        ]
+@app.get("/documents/{document_id}/chunks", response_model= list[ChunkDetailResponse])
+def list_documents(document_id: str):
+        with get_connection() as conn:
+            rows= conn.execute(
+                """
+                Select id, document_id, chunk_index, text, char_count, word_count
+                FROM chunks
+                WHERE document_id= ?
+                ORDER BY chunk_index
+                """, (document_id, ), 
+                          ).fetchall()
+            
+        return [
+            ChunkDetailResponse
+                (
+                id=single_row[0],
+                document_id =single_row[1],
+                chunk_index= row[2],
+                text=single_row[3],
+                char_count=single_row[4],
+                word_count=single_row[5],
+                )
+            for single_row in rows
         ]
