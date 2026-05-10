@@ -16,3 +16,11 @@ class DocumentDetailResponse(BaseModel):
         text: str
         char_count: int
         word_count: int
+
+class ChunkDetailResponse(BaseModel):
+        id: str
+        document_id: str
+        chunk_index: int
+        text: str
+        char_count: int
+        word_count: int
