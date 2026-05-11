@@ -18,7 +18,8 @@ def init_db():
                 char_count INTEGER NOT NULL,
                 word_count INTEGER NOT NULL
             )
-            """)
+            """
+        )
 
         conn.execute(
             """
@@ -31,5 +32,18 @@ def init_db():
                 word_count INTEGER NOT NULL,
                 FOREIGN KEY (document_id) REFERENCES documents (id)
                 )
-            """)
-        
+            """
+        )
+
+        conn.execute(
+            """
+                CREATE TABLE IF NOT EXISTS chunk_embeddings (
+                id TEXT PRIMARY KEY,
+                chunk_id TEXT NOT NULL,
+                embedding TEXT NOT NULL,
+                model_name TEXT NOT NULL,
+                dimensions INTEGER NOT NULL,
+                FOREIGN KEY (chunk_id) REFERENCES chunks (id)
+                )
+            """
+        )
