@@ -13,13 +13,14 @@ def init_db():
             """
                 CREATE TABLE IF NOT EXISTS documents (
                 id TEXT PRIMARY KEY,
-                title TEXT NOT NULL UNIQUE,
+                title TEXT NOT NULL,
                 text TEXT NOT NULL,
                 char_count INTEGER NOT NULL,
                 word_count INTEGER NOT NULL
             )
             """
         )
+        _remove_title_unique_constraint(conn)
 
         conn.execute(
             """
@@ -47,3 +48,37 @@ def init_db():
                 )
             """
         )
+
+
+def _remove_title_unique_constraint(conn):
+    row = conn.execute(
+        """
+        SELECT sql
+        FROM sqlite_master
+        WHERE type = 'table' AND name = 'documents'
+        """
+    ).fetchone()
+
+    if row is None or "title TEXT NOT NULL UNIQUE" not in row[0]:
+        return
+
+    conn.execute(
+        """
+        CREATE TABLE documents_new (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            text TEXT NOT NULL,
+            char_count INTEGER NOT NULL,
+            word_count INTEGER NOT NULL
+        )
+        """
+    )
+    conn.execute(
+        """
+        INSERT INTO documents_new (id, title, text, char_count, word_count)
+        SELECT id, title, text, char_count, word_count
+        FROM documents
+        """
+    )
+    conn.execute("DROP TABLE documents")
+    conn.execute("ALTER TABLE documents_new RENAME TO documents")

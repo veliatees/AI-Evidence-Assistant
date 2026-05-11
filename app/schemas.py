@@ -24,3 +24,9 @@ class ChunkDetailResponse(BaseModel):
         text: str
         char_count: int
         word_count: int
+
+class EmbeddingDetailResponse(BaseModel):
+        chunk_id: str
+        model_name: str
+        dimensions: int
+        embedding_preview: list[float]
