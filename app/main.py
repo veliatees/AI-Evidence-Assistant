@@ -1,10 +1,19 @@
 from fastapi import FastAPI, HTTPException
 from uuid import uuid4
 from app.database import get_connection, init_db
-from app.schemas import DocumentCreate, DocumentDetailResponse, DocumentResponse, ChunkDetailResponse, EmbeddingDetailResponse
+from app.schemas import (
+    ChunkDetailResponse,
+    DocumentCreate,
+    DocumentDetailResponse,
+    DocumentResponse,
+    EmbeddingDetailResponse,
+    SearchRequest,
+    SearchResponse,
+)
 from app.chunking import chunk_text
 import json
 from app.embedding import embed_texts, MODEL_NAME
+from app.retrieval import retrieve_relevant_chunks
 from app.ui import router as ui_router
 
 app= FastAPI(
@@ -153,4 +162,13 @@ def get_chunk_embedding(chunk_id: str):
         model_name=row[2],
         dimensions=row[3],
         embedding_preview=embedding[:5],
+    )
+
+@app.post("/search", response_model=SearchResponse)
+def search_documents(request: SearchRequest):
+    results = retrieve_relevant_chunks(request.query, top_k=request.top_k)
+
+    return SearchResponse(
+        query=request.query,
+        results=results,
     )

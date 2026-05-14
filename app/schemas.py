@@ -30,3 +30,18 @@ class EmbeddingDetailResponse(BaseModel):
         model_name: str
         dimensions: int
         embedding_preview: list[float]
+
+class SearchRequest(BaseModel):
+        query: str = Field(..., min_length=1, max_length=500)
+        top_k: int = Field(default=3, ge=1, le=10)
+
+class SearchResultResponse(BaseModel):
+        chunk_id: str
+        document_id: str
+        chunk_index: int
+        text: str
+        score: float
+
+class SearchResponse(BaseModel):
+        query: str
+        results: list[SearchResultResponse]
