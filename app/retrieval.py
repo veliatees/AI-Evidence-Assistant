@@ -7,9 +7,8 @@ def cosine_similarity(a: list[float], b: list[float]) -> float:
     norm_a = math.sqrt(sum(x * x for x in a))
     norm_b = math.sqrt(sum(y * y for y in b))
     if norm_a==0 or norm_b==0:
-        raise ValueError
-    else:
-        return dot_product / (norm_a * norm_b)
+        return 0.0
+    return dot_product / (norm_a * norm_b)
 
 def retrieve_relevant_chunks(query: str, top_k: int = 3) -> list[dict]:
     query_embedding = embed_texts([query])[0]
